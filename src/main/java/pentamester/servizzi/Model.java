@@ -8,43 +8,44 @@ package pentamester.servizzi;
  *
  * @author shwak
  */
-import javax.swing.DefaultListModel;
-
 import java.util.*;
-import javax.swing.*;
-
-public class Model extends Observable {
-    private DefaultListModel<String> daServire;
-    private DefaultListModel<String> serviti;
-    private int counter = 0;
-
-    public Model() {
-        daServire = new DefaultListModel<>();
-        serviti = new DefaultListModel<>();
-    }
-
-    public DefaultListModel<String> getDaServireModel() {
-        return daServire;
-    }
-
-    public DefaultListModel<String> getServitiModel() {
-        return serviti;
-    }
+public class Model {
+    private LinkedList<String> daServire = new LinkedList<>();
+    private LinkedList<String> serviti = new LinkedList<>();
+    private int ultimoVal = 0;
+    private List<IModelObserver> observers = new ArrayList<>();
 
     public void aggiungiPersona() {
-        daServire.addElement("Da servire " + counter);
-        counter++;
-        setChanged();
-        notifyObservers();
+        String nome = "Da servire " + ultimoVal;
+        daServire.addLast(nome);
+        ultimoVal++;
+        notificaObserver();
     }
 
     public void serviPersona() {
         if (!daServire.isEmpty()) {
-            String persona = daServire.remove(0);
-            persona = persona.replace("Da servire", "Servito/a");
-            serviti.addElement(persona);
-            setChanged();
-            notifyObservers();
+            String daServito = daServire.removeFirst(); 
+            String servito = daServito.replace("Da servire", "Servito");
+            serviti.addFirst(servito); 
+            notificaObserver();
+        }
+    }
+
+    public List<String> getDaServire() {
+        return new ArrayList<>(daServire);
+    }
+
+    public List<String> getServiti() {
+        return new ArrayList<>(serviti);
+    }
+
+    public void aggiungiObserver(IModelObserver observer) {
+        observers.add(observer);
+    }
+
+    private void notificaObserver() {
+        for (IModelObserver o : observers) {
+            o.update(new ArrayList<>(daServire), new ArrayList<>(serviti));
         }
     }
 }

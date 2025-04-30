@@ -8,13 +8,6 @@ package pentamester.servizzi;
  *
  * @author shwak
  */
-public class Main {
-    public static void main(String[] args) {
-        Model model = new Model();
-        View view = new View();
-        Controller controller = new Controller(model, view);
-        model.aggiungiObserver(view);
-    }
+public interface IView {
+    void setViewObserver(IViewObserver observer);
 }
-
-

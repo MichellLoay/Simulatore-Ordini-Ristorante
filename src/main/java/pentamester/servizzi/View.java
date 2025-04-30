@@ -10,47 +10,62 @@ package pentamester.servizzi;
  */
 import javax.swing.*;
 import java.awt.*;
-import java.util.Observer;
-import java.util.Observable;
+import java.awt.event.*;
+import java.util.*;
 
-public class View extends JFrame implements Observer {
-    JButton aggiungiButton;
-    JButton serviButton;
-    JList<String> listaDaServire;
-    JList<String> listaServiti;
+public class View extends JFrame implements IModelObserver {
+    private JButton aggiungiBottone = new JButton(" + ");
+    private JButton serviBottone = new JButton(" - ");
+    private JList<String> listaDaServire = new JList<>();
+    private JList<String> listaServiti = new JList<>();
+    private IViewObserver controller;
 
     public View() {
-        setTitle("Esercizio 5 - Model View Controller - Coda");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        super("Esercizio 5 - Model View Controller - Coda");
+
+        setLayout(new BorderLayout());
+
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new FlowLayout());
+        topPanel.add(aggiungiBottone);
+        topPanel.add(serviBottone);
+        add(topPanel, BorderLayout.NORTH);
+
+        JPanel listePanel = new JPanel(new GridLayout(1, 2, 10, 10));
+
+        JPanel pannelloDaServire = new JPanel(new BorderLayout());
+        pannelloDaServire.setBorder(BorderFactory.createTitledBorder("Da servire"));
+        pannelloDaServire.add(new JScrollPane(listaDaServire), BorderLayout.CENTER);
+
+        JPanel pannelloServiti = new JPanel(new BorderLayout());
+        pannelloServiti.setBorder(BorderFactory.createTitledBorder("Serviti"));
+        pannelloServiti.add(new JScrollPane(listaServiti), BorderLayout.CENTER);
+
+        listePanel.add(pannelloDaServire);
+        listePanel.add(pannelloServiti);
+
+        add(listePanel, BorderLayout.CENTER);
+
         setSize(400, 300);
-        setLayout(new GridLayout(1, 2));
-
-        JPanel panelDaServire = new JPanel(new BorderLayout());
-        aggiungiButton = new JButton("+");
-        listaDaServire = new JList<>(new DefaultListModel<>());
-        panelDaServire.add(aggiungiButton, BorderLayout.NORTH);
-        panelDaServire.add(new JScrollPane(listaDaServire), BorderLayout.CENTER);
-
-        JPanel panelServiti = new JPanel(new BorderLayout());
-        serviButton = new JButton("-");
-        listaServiti = new JList<>(new DefaultListModel<>());
-        panelServiti.add(serviButton, BorderLayout.NORTH);
-        panelServiti.add(new JScrollPane(listaServiti), BorderLayout.CENTER);
-
-        add(panelDaServire);
-        add(panelServiti);
-        
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setVisible(true);
+
+        aggiungiBottone.addActionListener(e -> controller.aggiungiPersona());
+        serviBottone.addActionListener(e -> controller.serviPersona());
+    }
+
+    public void setViewObserver(IViewObserver observer) {
+        this.controller = observer;
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        // Quando il Model cambia, aggiorniamo la View
-        if (o instanceof Model model) {
-            listaDaServire.setModel(model.getDaServireModel());
-            listaServiti.setModel(model.getServitiModel());
-        }
+    public void update(java.util.List<String> daServire, java.util.List<String> serviti) {
+        listaDaServire.setListData(daServire.toArray(new String[0]));
+        listaServiti.setListData(serviti.toArray(new String[0]));
+    }
+
+    @Override
+    public void initialize() {
+        controller.settiValuToModel();
     }
 }
-
-
